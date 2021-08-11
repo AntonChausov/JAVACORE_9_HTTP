@@ -1,3 +1,5 @@
+package Task1;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Data {
@@ -61,7 +63,7 @@ public class Data {
 
     @Override
     public String toString() {
-        return "Data{" +
+        return "Task1.Data{" +
                 "id='" + id + '\'' +
                 ", text='" + text + '\'' +
                 ", type='" + type + '\'' +

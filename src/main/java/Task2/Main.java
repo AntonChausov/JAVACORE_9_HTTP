@@ -1,3 +1,5 @@
+package Task2;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.config.RequestConfig;
@@ -6,9 +8,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Stream;
+import java.net.URL;
 
 public class Main {
     public static ObjectMapper mapper = new ObjectMapper();
@@ -21,15 +24,32 @@ public class Main {
                         .setRedirectsEnabled(false)
                         .build())
                 .build();
-        HttpGet request = new HttpGet("https://raw.githubusercontent.com/netology-code/jd-homeworks/master/http/task1/cats");
+        HttpGet request = new HttpGet("https://api.nasa.gov/planetary/apod?api_key=EcvltSP05EPOgHw62w6uKv7PJ9OQgSs0TfI4EaMH");
+        String urlFromData;
+        String fileName;
         try {
             CloseableHttpResponse response = httpClient.execute(request);
-            Stream<Data> datas = mapper.readValue(response.getEntity().getContent(), new TypeReference<List<Data>>() {}).stream().filter(value -> value.getUpvotes() > 0);
-            datas.forEach(System.out::println);
-
+            NASAData data = mapper.readValue(response.getEntity().getContent(), new TypeReference<>() {});
+            System.out.println(data);
+            urlFromData = data.getUrl();
+            fileName = urlFromData.substring(urlFromData.lastIndexOf("/") + 1);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
+        if (urlFromData.equals("")){
+            return;
+        }
+        try (BufferedInputStream in = new BufferedInputStream(new URL(urlFromData).openStream());
+             FileOutputStream fout = new FileOutputStream(fileName)) {
+            final byte[] data = new byte[1024];
+            int count;
+            while ((count = in.read(data, 0, 1024)) != -1) {
+                fout.write(data, 0, count);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
